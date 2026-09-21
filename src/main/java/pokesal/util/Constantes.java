@@ -56,6 +56,8 @@ public final class Constantes {
 
     public static final int ESTOQUE_INICIAL_ANTIDOTE = 1;
 
+    public static final int MAXIMO_TURNOS_DEMONSTRACAO = 10;
+
     private Constantes() {
 
     }

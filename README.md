@@ -82,21 +82,39 @@ no enunciado:
 - **Organização de imports** (sem import com `*`, sem imports não
   usados, ordem alfabética).
 
-Este ambiente não tinha acesso ao `.jar` do Checkstyle nem ao repositório
-Maven Central para baixá-lo (rede restrita), então a configuração não foi
-executada de fato aqui — apenas escrita conforme a documentação do
-Checkstyle. Rode-a no computador de vocês (com o Checkstyle instalado, ou
-com `mvn checkstyle:check`) e ajuste o código onde ela apontar problemas.
+A configuração foi executada com `mvn checkstyle:check` e corrigida para rodar
+(a propriedade `scope` de `JavadocMethod` virou `accessModifiers`). Ela exige
+Javadoc em tipos e métodos públicos: hoje o código tem só comentários curtos,
+então o Checkstyle aponta esses itens como aviso (`failOnViolation` está como
+`false`). Naming, magic numbers e imports estão sem avisos.
 
 ## O que ainda falta (fora do escopo deste código)
 
-- Testes automatizados (JUnit) para os critérios de aceitação da Fase 2 —
-  o design já foi pensado para isso (fonte de criticidade injetável,
-  exceções específicas, sem aleatoriedade fora de
-  `FonteCriticidadeAleatoria`), mas os testes em si não foram escritos.
 - Qualquer mecânica de aplicação automática de status por ataques
   específicos (item 1.16 do documento) — hoje só existe a operação
   testável `PokeSal.aplicarStatus(...)`.
 - Ciclo de seleção interativa dos PokéSal (1.1) e qualquer interface de
   usuário — este código cobre a lógica de batalha, não a camada de
   entrada/saída.
+
+## Testes
+
+Os testes unitários (JUnit 5) ficam em `src/test/java/pokesal`, espelhando os
+pacotes do código, e cobrem os critérios de aceitação do documento de análise
+(matriz RF-01 a RA-03).
+
+```bash
+mvn test
+```
+
+## Documentação
+
+| Arquivo | Conteúdo |
+|---|---|
+| `docs/diagrama-classes.md` | Diagrama de Classes (Mermaid) |
+| `docs/diagrama-casos-de-uso.md` | Diagrama de Casos de Uso (Mermaid) |
+| `docs/analise_estatica_fase1_PREVIEW.pdf` | Análise estática e requisitos autorais |
+| `docs/atas_reuniao_pokesal.pdf` | Atas das reuniões 1 e 2 |
+| `docs/relatorio-contribuicao.md` | Relatório de contribuição individual (rascunho) |
+| `docs/registro-prompts.md` | Registro dos prompts usados com IA |
+| `AI_DECLARATION.md` | Declaração de uso de IA (rascunho para revisão) |

@@ -374,6 +374,31 @@ class BatalhaTest {
         }
 
         @Test
+        @DisplayName("Validação isolada: PokéSal derrotado não pode descansar e o uso não é consumido")
+        void derrotadoNaoPodeDescansar() {
+            final Treinador t1 = treinador("T1", PokeSalEspecie.SQUIRTSAL);
+            final Treinador t2 = treinador("T2", PokeSalEspecie.SQUIRTSAL);
+            deixarComHp(t1, 0);
+            final Batalha batalha = batalha(t1, t2, Terreno.NEUTRO);
+
+            assertThrows(AcaoInvalidaException.class, () -> batalha.validarDescanso(Acao.descansar(t1)));
+
+            assertFalse(t1.jaDescansou());
+            assertEquals(0, t1.getPokeSalAtivo().getHpAtual());
+        }
+
+        @Test
+        @DisplayName("Validação isolada: segundo descanso é rejeitado")
+        void validacaoRejeitaSegundoDescanso() {
+            final Treinador t1 = treinador("T1", PokeSalEspecie.SQUIRTSAL);
+            final Treinador t2 = treinador("T2", PokeSalEspecie.SQUIRTSAL);
+            final Batalha batalha = batalha(t1, t2, Terreno.NEUTRO);
+            batalha.executarTurno(Acao.descansar(t1), Acao.descansar(t2));
+
+            assertThrows(AcaoInvalidaException.class, () -> batalha.validarDescanso(Acao.descansar(t1)));
+        }
+
+        @Test
         @DisplayName("O controle é por treinador: os dois podem descansar uma vez cada")
         void controlePorTreinador() {
             final Treinador t1 = treinador("T1", PokeSalEspecie.SQUIRTSAL);
@@ -495,6 +520,37 @@ class BatalhaTest {
             assertEquals(2, t1.getEstoque(ItemTipo.POTION));
             assertEquals(1, t1.getEstoque(ItemTipo.ANTIDOTE));
             assertEquals(0, t1.getItensUsados());
+        }
+
+        @Test
+        @DisplayName("Validação isolada: item em PokéSal com 0 HP lança exceção e não consome nada (1.23)")
+        void itemEmPokeSalDerrotado() {
+            final Treinador t1 = treinador("T1", PokeSalEspecie.SQUIRTSAL);
+            final Treinador t2 = treinador("T2", PokeSalEspecie.SQUIRTSAL);
+            deixarComHp(t1, 0);
+            final Batalha batalha = batalha(t1, t2, Terreno.NEUTRO);
+
+            assertThrows(AcaoInvalidaException.class,
+                    () -> batalha.validarUsoDeItem(Acao.usarItem(t1, ItemTipo.POTION)));
+
+            assertEquals(2, t1.getEstoque(ItemTipo.POTION));
+            assertEquals(0, t1.getItensUsados());
+            assertEquals(0, t1.getPokeSalAtivo().getHpAtual());
+        }
+
+        @Test
+        @DisplayName("Validação isolada: item válido passa sem alterar estoque nem HP")
+        void validacaoNaoAlteraEstado() {
+            final Treinador t1 = treinador("T1", PokeSalEspecie.SQUIRTSAL);
+            final Treinador t2 = treinador("T2", PokeSalEspecie.SQUIRTSAL);
+            deixarComHp(t1, 20);
+            final Batalha batalha = batalha(t1, t2, Terreno.NEUTRO);
+
+            batalha.validarUsoDeItem(Acao.usarItem(t1, ItemTipo.POTION));
+
+            assertEquals(2, t1.getEstoque(ItemTipo.POTION));
+            assertEquals(0, t1.getItensUsados());
+            assertEquals(20, t1.getPokeSalAtivo().getHpAtual());
         }
 
         @Test

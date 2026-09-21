@@ -7,7 +7,6 @@ import pokesal.excecao.AcaoInvalidaException;
 import pokesal.excecao.LimiteDeItensExcedidoException;
 import pokesal.modelo.ItemTipo;
 import pokesal.modelo.PokeSal;
-import pokesal.modelo.StatusEfeito;
 import pokesal.modelo.Terreno;
 import pokesal.modelo.Treinador;
 import pokesal.util.Constantes;
@@ -111,11 +110,15 @@ public final class Batalha {
         pokeDefensor.receberDano(resultado.dano());
     }
 
-    private void executarUsoDeItem(final Acao acao) {
+    // só valida, não altera nada: se lançar exceção, o estado da batalha continua intacto
+    public void validarUsoDeItem(final Acao acao) {
         final Treinador treinador = acao.getAutor();
         final ItemTipo item = acao.getItem();
         final PokeSal pokeSal = treinador.getPokeSalAtivo();
 
+        if (pokeSal.isDerrotado()) {
+            throw new AcaoInvalidaException("PokéSal derrotado não pode usar itens.");
+        }
         if (treinador.atingiuLimiteDeItens()) {
             throw new LimiteDeItensExcedidoException(
                     "Treinador " + treinador.getNome() + " já usou o máximo de "
@@ -128,6 +131,13 @@ public final class Batalha {
             throw new AcaoInvalidaException(item + " não teria efeito sobre o PokéSal de "
                     + treinador.getNome() + ".");
         }
+    }
+
+    private void executarUsoDeItem(final Acao acao) {
+        validarUsoDeItem(acao);
+        final Treinador treinador = acao.getAutor();
+        final ItemTipo item = acao.getItem();
+        final PokeSal pokeSal = treinador.getPokeSalAtivo();
 
         if (item.isRemoveStatus()) {
             pokeSal.removerStatus();
@@ -137,7 +147,7 @@ public final class Batalha {
         treinador.registrarUsoDeItem(item);
     }
 
-    private void executarDescanso(final Acao acao) {
+    public void validarDescanso(final Acao acao) {
         final Treinador treinador = acao.getAutor();
         final PokeSal pokeSal = treinador.getPokeSalAtivo();
 
@@ -148,6 +158,12 @@ public final class Batalha {
             throw new AcaoInvalidaException(
                     "Treinador " + treinador.getNome() + " já descansou nesta batalha.");
         }
+    }
+
+    private void executarDescanso(final Acao acao) {
+        validarDescanso(acao);
+        final Treinador treinador = acao.getAutor();
+        final PokeSal pokeSal = treinador.getPokeSalAtivo();
 
         pokeSal.curar(curaPercentualComMinimo(pokeSal, Constantes.PERCENTUAL_CURA_DESCANSO));
         treinador.registrarDescanso();

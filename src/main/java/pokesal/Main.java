@@ -9,6 +9,7 @@ import pokesal.modelo.PokeSalEspecie;
 import pokesal.modelo.StatusEfeito;
 import pokesal.modelo.Terreno;
 import pokesal.modelo.Treinador;
+import pokesal.util.Constantes;
 
 public final class Main {
 
@@ -25,7 +26,7 @@ public final class Main {
         treinador2.getPokeSalAtivo().aplicarStatus(StatusEfeito.QUEIMADO);
 
         int numeroDoTurno = 1;
-        while (!batalha.isEncerrada() && numeroDoTurno <= 10) {
+        while (!batalha.isEncerrada() && numeroDoTurno <= Constantes.MAXIMO_TURNOS_DEMONSTRACAO) {
             System.out.println("--- Turno " + numeroDoTurno + " ---");
             batalha.executarTurno(Acao.atacar(treinador1), Acao.atacar(treinador2));
             imprimirEstado(treinador1);
